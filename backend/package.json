@@ -1,0 +1,19 @@
+{
+  "name": "linkview-backend",
+  "version": "1.0.0",
+  "description": "Linkview backend for Miro",
+  "license": "MIT",
+  "author": "Cy Bautista",
+  "type": "commonjs",
+  "main": "index.js",
+  "scripts": {
+    "start": "nodemon index.js"
+  },
+  "dependencies": {
+    "axios": "^1.13.5",
+    "cheerio": "^1.2.0",
+    "cors": "^2.8.6",
+    "express": "^5.2.1",
+    "nodemon": "^3.1.11"
+  }
+}
