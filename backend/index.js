@@ -124,7 +124,7 @@ const websiteParser = {
 app.post("/get-url-info", async(req, resp) => {
 	const url = req.body.url;
 	const embedType = req.body.embedType;
-	console.log(url);
+	// console.log(url);
 
 	// test if this link is valid (of if all the required parameters are present)
 	if (url != undefined && embedType != undefined && embedType in websiteParser && regex_isLink.test(url)) {
@@ -143,7 +143,7 @@ app.post("/get-url-info", async(req, resp) => {
 		//
 	} else {
 		// link is not valid, throw out an error (it's the client side's fault)
-		console.log(`Not a url: ${url}`);
+		// console.log(`Not a url: ${url}`);
 		return resp.status(400).send({error: "Not a URL"})
 
 	}

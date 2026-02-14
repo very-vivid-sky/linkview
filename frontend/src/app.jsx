@@ -212,9 +212,9 @@ const websites_mapping = {
 					borderStyle: 'normal', borderOpacity: 1.0, borderColor: "#FF0033", borderWidth: 2,
 					fillOpacity: 1.0,  fillColor: "#ffffff88"
 				},
-				x: original.x,
-				y: original.y + 200,
-				width: 200,
+				x: original.x - 80,
+				y: original.y + 170,
+				width: 150,
 				height: 25,
 			})
 
@@ -226,9 +226,9 @@ const websites_mapping = {
 					borderStyle: 'normal', borderOpacity: 1.0, borderColor: "#FF0033", borderWidth: 2,
 					fillOpacity: 1.0, fillColor: "#ffffff88"
 				},
-				x: original.x,
-				y: original.y + 165,
-				width: 200,
+				x: original.x + 80,
+				y: original.y + 170,
+				width: 150,
 				height: 25,
 			})
 
