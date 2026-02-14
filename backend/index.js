@@ -44,7 +44,10 @@ async function getFromUrl(url) {
 // each website is structured differently and thus would need different methods of parsing.
 const websiteParser = {
 	wikimedia: function(cheerioRes, url) {
-		const output = cheerioRes.extract({ title: "title", /* favicon: { selector: "link[rel~=icon]", value: "href" }*/ });
+		const output = cheerioRes.extract({
+			title: "title",
+			canonicalUrl: {selector: "link[rel~='canonical']", value: "href"}
+		});
 
 		// fix the favicon
 		// const domain = url.match(regex_domain)[0];
@@ -90,6 +93,30 @@ const websiteParser = {
 		}
 
 		return output;
+	},
+	youtube: function(cheerioRes, url) {
+		let output = {};
+		const regex_youtubePost = /^https?:\/\/(www.)?youtu(be.com|youtu.be)\/watch\?v=[0-9A-Za-z_-]{10}[048AEIMQUYcgkosw]/;
+		const regex_getAccount = /@?([A-Za-z0-9_-])+$/;
+
+		if (regex_youtubePost.test(url)) {
+			output.linkType = "video";
+			output.title = cheerioRes("title").text().replace(/ - YouTube$/, "");
+			let topdiv = cheerioRes("div");
+			output.canonicalUrl = topdiv.find("link[itemprop~='url']").attr("href");
+			output.image = topdiv.find("link[itemprop~='thumbnailUrl']").attr("href");
+			output.author = topdiv.find("span[itemprop~='author']").find("link").attr("href");
+			output.likes = topdiv.find("div[itemprop~='interactionStatistic']").find("meta:nth-child(2)").attr("content");
+			output.views = topdiv.find("div[itemprop~='interactionStatistic']:nth-of-type(2)").find("meta:nth-child(2)").attr("content");
+			output.date = topdiv.find("meta[itemprop~=uploadDate]").attr("content");
+			output.genre = topdiv.find("meta[itemprop~=genre]").attr("content");
+
+			output.author = output.author.match(regex_getAccount)[0];
+		} else {
+			return {};
+		}
+
+		return output;
 	}
 }
 
@@ -116,6 +143,7 @@ app.post("/get-url-info", async(req, resp) => {
 		//
 	} else {
 		// link is not valid, throw out an error (it's the client side's fault)
+		console.log(`Not a url: ${url}`);
 		return resp.status(400).send({error: "Not a URL"})
 
 	}

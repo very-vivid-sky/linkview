@@ -11,13 +11,15 @@ import '../src/assets/style.css';
 // joins together all objects in array but only if they are present and are a promise
 async function waitAndGroup(objectArray) {
 	return new Promise((resolve) => {
-		// let promiseArray = objectArray.filter((i) => typeof(i) == "Promise");
-		Promise.all(objectArray).then((res) => {
+		let promiseArray = objectArray.filter((i) => typeof(i) != undefined);
+		console.log(promiseArray);
+
+		// if one, no need to group - resolve right away
+		if (promiseArray.length < 2) { resolve(undefined); }
+
+		Promise.all(promiseArray).then((res) => {
 			// remove all non-objects
 			let createdObjectArray = res.filter((i) => typeof(i) == "object")
-
-			// if one, no need to group - resolve right away
-			if (createdObjectArray.length < 2) { resolve(undefined); }
 
 			miro.board.group({items: createdObjectArray}).then(group => {
 				resolve(group);
@@ -56,7 +58,7 @@ const websites_mapping = {
 			switch(websiteData.linkType) {
 				case "post":
 					mainContainer = miro.board.createShape({
-						content: `<b><u>${websiteData.title}</u></b><br />${websiteData.desc}`,
+						content: `<b><u><a href=${websiteData.canonicalUrl}>${websiteData.title}</a></u></b><br />${websiteData.desc}`,
 						shape: "round_rectangle",
 						style: getDefaultMainStyle("#17A9FD"),
 						x: original.x,
@@ -86,7 +88,7 @@ const websites_mapping = {
 
 				case "account":
 					mainContainer = miro.board.createShape({
-						content: `<br/><br/><br/><br/><br/><br/><br/><b><u>${websiteData.title}</b></u><br>${websiteData.username}`,
+						content: `<br/><br/><br/><br/><br/><br/><br/><b><u><a href=${websiteData.canonicalUrl}>${websiteData.title}</a></b></u><br>${websiteData.username}`,
 						shape: "round_rectangle",
 						style: getDefaultMainStyle("#17A9FD", "center", 20),
 						x: original.x,
@@ -133,10 +135,11 @@ const websites_mapping = {
 		"regex": /^https:\/\/(.*\.)?(wikipedia|wikimedia|wiktionary|mediawiki|wikimedia).org/,
 		"method": async function(link, websiteData, original) {
 			console.log("Wikimedia");
+			console.log(link);
 
 			// create new WikimediaEmbed
 			let mainContainer = miro.board.createShape({
-				content: `<b><u>${websiteData.title}</u></b><br />${websiteData.blurb}`,
+				content: `<b><u><a href=${websiteData.canonicalUrl}>${websiteData.title}</a></u></b><br />${websiteData.blurb}`,
 				shape: "round_rectangle",
 				style: getDefaultMainStyle("#bbbbbb"),
 
@@ -170,7 +173,72 @@ const websites_mapping = {
 	},
 	"youtube": {
 		"regex": /^https:\/\/(.*\.)?(youtube).com/,
-		"method": async function(link, websiteData, original) { console.log("YouTube"); return false; }
+		"method": async function(link, websiteData, original) {
+			console.log(websiteData);
+			let mainContainer, faviconContainer, imageContainer, likesContainer, viewsContainer;
+			if (websiteData.linkType == "video") {
+				mainContainer = miro.board.createShape({
+				content: `<br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><b><u><a href=${websiteData.canonicalUrl}>${websiteData.title}</a></u></b><br>by ${websiteData.author}`,
+				shape: "round_rectangle",
+				style: getDefaultMainStyle("#FF0033", "center"),
+
+				x: original.x,
+				y: original.y,
+				width: 400,
+				height: 300,
+				});
+
+			faviconContainer = miro.board.createImage({
+				url: "https://upload.wikimedia.org/wikipedia/commons/thumb/f/fd/YouTube_full-color_icon_%282024%29.svg/1280px-YouTube_full-color_icon_%282024%29.svg.png?20241018202936",
+				x: original.x - 190,
+				y: original.y - 150,
+				height: 50,
+			})
+
+			if (websiteData.image != undefined) {
+				imageContainer = miro.board.createImage({
+					url: websiteData.image,
+					x: original.x,
+					y: original.y - 33,
+					height: 180,
+				})
+			}
+
+			likesContainer = miro.board.createShape({
+				content: `${websiteData.likes} likes`,
+				shape: "round_rectangle",
+				style: {
+					color: '#333333', fontFamily: 'Open Sans', textAlign: "center", fontSize: 14,
+					borderStyle: 'normal', borderOpacity: 1.0, borderColor: "#FF0033", borderWidth: 2,
+					fillOpacity: 1.0,  fillColor: "#ffffff88"
+				},
+				x: original.x,
+				y: original.y + 200,
+				width: 200,
+				height: 25,
+			})
+
+			viewsContainer = miro.board.createShape({
+				content: `${websiteData.views} views`,
+				shape: "round_rectangle",
+				style: {
+					color: '#333333', fontFamily: 'Open Sans', textAlign: "center", fontSize: 14,
+					borderStyle: 'normal', borderOpacity: 1.0, borderColor: "#FF0033", borderWidth: 2,
+					fillOpacity: 1.0, fillColor: "#ffffff88"
+				},
+				x: original.x,
+				y: original.y + 165,
+				width: 200,
+				height: 25,
+			})
+
+			} else {
+				return false;
+			}
+
+			await waitAndGroup([mainContainer, faviconContainer, imageContainer, likesContainer, viewsContainer]); // group together :>
+			return true;
+		}
 	},
 }
 
@@ -233,6 +301,7 @@ miro.board.ui.on("items:create", async(event) => {
 			// run the script to create the new embed card and get the signal on whether to remove the old one
 			const removeOriginal = await websites_mapping[newEmbedType].method(url, websiteData, item);
 			if (removeOriginal === true) {
+				console.log("hi");
 				miro.board.remove(item);
 			} 
 			return; break;
@@ -251,7 +320,7 @@ const App = () => {
 				<h1 style={{margin: "0%", "flexGrow": 1}}>Linkview</h1>
 				<div style={{}}>by Cy Bautista</div>
 				<hr />
-				<div><i>Keep this pane open! Links you paste (or copy from default embeds) would be converted into custom Linkview embeds.</i></div>
+				<div><i>Keep this pane open! Links you paste (or copy from default embeds) would be converted into custom Linkview embeds while it is up.</i></div>
 			</div>
 	</div> )
 };
