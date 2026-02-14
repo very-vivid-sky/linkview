@@ -111,7 +111,7 @@ const websiteParser = {
 			output.date = topdiv.find("meta[itemprop~=uploadDate]").attr("content");
 			output.genre = topdiv.find("meta[itemprop~=genre]").attr("content");
 
-			output.author = output.author.match(regex_getAccount)[0];
+			// output.author = output.author.match(regex_getAccount)[0];
 		} else {
 			return {};
 		}
