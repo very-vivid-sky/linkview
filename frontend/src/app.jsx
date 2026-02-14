@@ -226,7 +226,9 @@ miro.board.ui.on("items:create", async(event) => {
 	const embeds = createdItems.filter((item) => item.type === "embed");
 
 	for (let item of embeds) {
+		const url = item.url;
 		const newEmbedType = await getDomainAsEnum(url);
+		console.log(2)
 		if (newEmbedType in websites_mapping) {
 			const websiteData = await getFromUrl(url, newEmbedType);
 			// run the script to create the new embed card and get the signal on whether to remove the old one
@@ -244,6 +246,7 @@ miro.board.ui.on("items:create", async(event) => {
 });
 
 const App = () => {	
+	console.log("Linkview now running <3");
 	return ( <div className="" style={{display: "flex", "flexDirection": "column", width: "100%", gap: "1ex"}}>
 			<div className="" style={{display: "flex", "flexDirection": "column", width: "100%"}}>
 				<h1 style={{margin: "0%", "flexGrow": 1}}>Linkview</h1>

@@ -35,6 +35,7 @@ async function getFromUrl(url) {
 			resolve(cheerio.load(response.data));
 		}
 		}).catch((err) => {
+			console.log(err);
 			resolve(undefined);
 		})
 	})
