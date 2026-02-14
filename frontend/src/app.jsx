@@ -228,7 +228,6 @@ miro.board.ui.on("items:create", async(event) => {
 	for (let item of embeds) {
 		const url = item.url;
 		const newEmbedType = await getDomainAsEnum(url);
-		console.log(2)
 		if (newEmbedType in websites_mapping) {
 			const websiteData = await getFromUrl(url, newEmbedType);
 			// run the script to create the new embed card and get the signal on whether to remove the old one
