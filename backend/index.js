@@ -95,6 +95,10 @@ const websiteParser = {
 		return output;
 	},
 	youtube: function(cheerioRes, url) {
+
+		// disable function
+		return {};
+
 		let output = {};
 		const regex_youtubePost = /^https?:\/\/(www.)?youtu(be.com|youtu.be)\/watch\?v=[0-9A-Za-z_-]{10}[048AEIMQUYcgkosw]/;
 		const regex_getAccount = /@?([A-Za-z0-9_-])+$/;

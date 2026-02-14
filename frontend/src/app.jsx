@@ -172,6 +172,9 @@ const websites_mapping = {
 	"youtube": {
 		"regex": /^https:\/\/(.*\.)?(youtube).com/,
 		"method": async function(link, websiteData, original) {
+			// disable function
+			return false;
+
 			let mainContainer, faviconContainer, imageContainer, likesContainer, viewsContainer;
 			if (websiteData.linkType == "video") {
 				mainContainer = miro.board.createShape({
