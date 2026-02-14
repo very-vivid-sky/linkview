@@ -124,13 +124,11 @@ const websiteParser = {
 app.post("/get-url-info", async(req, resp) => {
 	const url = req.body.url;
 	const embedType = req.body.embedType;
-	console.log(url);
 
 	// test if this link is valid (of if all the required parameters are present)
 	if (url != undefined && embedType != undefined && embedType in websiteParser && regex_isLink.test(url)) {
 
 		const cheerioRes = await getFromUrl(url);
-		console.log(cheerioRes);
 		if (cheerioRes === undefined) { // check if present
 			// fail with getting Cheerio object, abort and inform client
 			return resp.status(500).send({error: "Error with obtaining data from website"});

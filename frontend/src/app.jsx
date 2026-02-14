@@ -12,7 +12,6 @@ import '../src/assets/style.css';
 async function waitAndGroup(objectArray) {
 	return new Promise((resolve) => {
 		let promiseArray = objectArray.filter((i) => typeof(i) != undefined);
-		console.log(promiseArray);
 
 		// if one, no need to group - resolve right away
 		if (promiseArray.length < 2) { resolve(undefined); }
@@ -135,7 +134,6 @@ const websites_mapping = {
 		"regex": /^https:\/\/(.*\.)?(wikipedia|wikimedia|wiktionary|mediawiki|wikimedia).org/,
 		"method": async function(link, websiteData, original) {
 			console.log("Wikimedia");
-			console.log(link);
 
 			// create new WikimediaEmbed
 			let mainContainer = miro.board.createShape({
@@ -174,7 +172,6 @@ const websites_mapping = {
 	"youtube": {
 		"regex": /^https:\/\/(.*\.)?(youtube).com/,
 		"method": async function(link, websiteData, original) {
-			console.log(websiteData);
 			let mainContainer, faviconContainer, imageContainer, likesContainer, viewsContainer;
 			if (websiteData.linkType == "video") {
 				mainContainer = miro.board.createShape({
@@ -301,7 +298,6 @@ miro.board.ui.on("items:create", async(event) => {
 			// run the script to create the new embed card and get the signal on whether to remove the old one
 			const removeOriginal = await websites_mapping[newEmbedType].method(url, websiteData, item);
 			if (removeOriginal === true) {
-				console.log("hi");
 				miro.board.remove(item);
 			} 
 			return; break;
