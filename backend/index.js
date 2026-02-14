@@ -41,16 +41,17 @@ async function getFromUrl(url) {
 // each website is structured differently and thus would need different methods of parsing.
 const websiteParser = {
 	wikimedia: function(cheerioRes, url) {
-		const output = cheerioRes.extract({ title: "title", favicon: { selector: "link[rel~=icon]", value: "href" }});
+		const output = cheerioRes.extract({ title: "title", /* favicon: { selector: "link[rel~=icon]", value: "href" }*/ });
 
 		// fix the favicon
-		const domain = url.match(regex_domain)[0];
-		output.favicon = domain + output.favicon;
+		// const domain = url.match(regex_domain)[0];
+		// output.favicon = domain + output.favicon;
 
 		// get the first paragraph
 		// const table = cheerioRes("#mw-content-text").find(".mw-parser-output").find("table");
 		const paragraph = cheerioRes("#mw-content-text").find("p").text();
-		output.blurb = paragraph.match(/^\s*([ -~]+)/, "")[0].trim().replace(/(\[([a-z]|[0-9]{1,4})\])/g, "");
+		output.description = paragraph.match(/^\s*([ -~]+)/, "")[0].trim().replace(/(\[([a-z]|[0-9]{1,4})\])/g, "");
+		output.blurb = output.description;
 
 		// get image
 		let image = cheerioRes("#mw-content-text").find("img");
@@ -59,6 +60,33 @@ const websiteParser = {
 
 		// format title
 		output.title = output.title.replace(/ - .*(Wiki).*$/, "");
+
+		return output;
+	},
+	facebook: function(cheerioRes, url) {
+		const output = cheerioRes.extract({ canonicalUrl: { selector: "meta[property~='og:url']", value: "content" } });
+		const regex_facebookPost = /^https?:\/\/(www.)?facebook.com\/[A-Za-z0-9\.]+\/posts\//;
+		const regex_facebookAccount = /^https?:\/\/www.facebook.com\/@?([A-Za-z0-9\.]+)\/?/;
+
+		// selects the inner post container for Facebook
+		forceSelector_postInner = ".html-div .xdj266r .x14z9mp .xat24cr .x1lziwak .xexx8yu .xyri2b .x18d9i69 .x1c1uobl .x78zum5 .xdt5ytf .x1iyjqo2 .x1n2onr6 .xqbnct6 .xga75y6"
+		console.log(output.canonicalUrl);
+		if (regex_facebookPost.test(output.canonicalUrl)) {
+			// image/video posts
+			output.linkType = "post";
+			output.author = cheerioRes("meta[property~='og:title']").attr("content");
+			output.title = `Post by ${output.author}`
+			output.desc = cheerioRes("meta[property~='og:description']").attr("content");
+			output.image = cheerioRes("meta[property~='og:image']").attr("content");
+		} else if (regex_facebookAccount.test(output.canonicalUrl)) {
+			output.linkType = "account";
+			output.author = cheerioRes("meta[property~='og:title']").attr("content");
+			output.title = output.author;
+			output.image = cheerioRes("meta[property~='og:image']").attr("content");
+			output.username = `@${output.canonicalUrl.match(regex_facebookAccount)[1]}`;
+		} else {
+			return {};
+		}
 
 		return output;
 	}
