@@ -2,23 +2,25 @@ const express = require("express");
 const axios = require("axios");
 const cheerio = require("cheerio");
 const cors = require("cors");
+const env = require("dotenv");
 
 const app = express(); // init
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json()) // parses JSON
 
-// define variables for server
-const port = "5000";
-const host = "localhost";
+// define environmental variables
+env.config();
+const FRONTEND_LINK = process.env.FRONTEND_LINK;
+const SECRET = process.env.SECRET;
+const USER_AGENT = process.env.USER_AGENT;
+const HOST = process.env.HOST;
+const PORT = process.env.PORT;
 
 // Use cors middleware to allow requests from frontend server
-app.use(cors({ origin: "http://localhost:3000" }));
-
+app.use(cors({ origin: `${FRONTEND_LINK}` }));
 
 // request headers
-const req_headers = {
-	"User-Agent": "Linkview-Miro/1.0.0 (cyrusrylie.bautista@gmail.com) axios/1.13.5"
-}
+const req_headers = { "User-Agent": USER_AGENT }
 
 // regexes
 const regex_domain = /(^https:\/\/[A-Za-z0-9\-\.]*)/
@@ -69,8 +71,6 @@ const websiteParser = {
 		const regex_facebookAccount = /^https?:\/\/www.facebook.com\/@?([A-Za-z0-9\.]+)\/?/;
 
 		// selects the inner post container for Facebook
-		forceSelector_postInner = ".html-div .xdj266r .x14z9mp .xat24cr .x1lziwak .xexx8yu .xyri2b .x18d9i69 .x1c1uobl .x78zum5 .xdt5ytf .x1iyjqo2 .x1n2onr6 .xqbnct6 .xga75y6"
-		console.log(output.canonicalUrl);
 		if (regex_facebookPost.test(output.canonicalUrl)) {
 			// image/video posts
 			output.linkType = "post";
@@ -96,6 +96,7 @@ const websiteParser = {
 app.post("/get-url-info", async(req, resp) => {
 	const url = req.body.url;
 	const embedType = req.body.embedType;
+	console.log(url);
 
 	// test if this link is valid (of if all the required parameters are present)
 	if (url != undefined && embedType != undefined && embedType in websiteParser && regex_isLink.test(url)) {
@@ -120,5 +121,5 @@ app.post("/get-url-info", async(req, resp) => {
 });
 
 
-app.listen(port, host);
-console.log(`Backend now running on ${host}:${port} <3`);
+app.listen(PORT, HOST);
+console.log(`Backend now running on ${HOST}:${PORT} <3`);

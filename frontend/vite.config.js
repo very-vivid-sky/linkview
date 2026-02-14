@@ -4,6 +4,9 @@ import dns from 'dns';
 import {defineConfig} from 'vite';
 import react from '@vitejs/plugin-react';
 
+import dotenv from 'dotenv';
+dotenv.config();
+
 // https://vitejs.dev/config/server-options.html#server-host
 dns.setDefaultResultOrder('verbatim');
 
