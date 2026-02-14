@@ -301,7 +301,9 @@ miro.board.ui.on("items:create", async(event) => {
 			// run the script to create the new embed card and get the signal on whether to remove the old one
 			const removeOriginal = await websites_mapping[newEmbedType].method(url, websiteData, item);
 			if (removeOriginal === true) {
-				miro.board.remove(item);
+				try {
+					miro.board.remove(item);
+				} catch{}
 			} 
 			return; break;
 		} else {
@@ -320,6 +322,13 @@ const App = () => {
 				<div style={{}}>by Cy Bautista</div>
 				<hr />
 				<div><i>Keep this pane open! Links you paste (or copy from default embeds) would be converted into custom Linkview embeds while it is up.</i></div>
+				<hr />
+				<div>Currently creatable Linkview cards:</div>
+				<ul>
+					<li><b>Wikipedia</b> article</li>
+					<li><b>Facebook</b> post</li>
+					<li><b>Facebook</b> user page</li>
+				</ul>
 			</div>
 	</div> )
 };
